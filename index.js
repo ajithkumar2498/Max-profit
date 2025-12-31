@@ -5,7 +5,6 @@
 
 function solveMaxProfit(n) {
     // Configuration
-    // Time is in units, Rate is in earnings per unit of operational time
     const buildings = {
         T: { time: 5, rate: 1500 },
         P: { time: 4, rate: 1000 },
@@ -13,17 +12,10 @@ function solveMaxProfit(n) {
     };
 
     let maxProfit = 0;
-    let bestSolution = { T: 0, P: 0, C: 0 };
-
-    // Optimization Strategy:
-    // We prioritize based on Earnings Per Unit of Build Time (Efficiency):
-    // 1. Theatre (T): $1500 / 5 = $300/unit
-    // 2. Pub (P): $1000 / 4 = $250/unit
-    // 3. Commercial Park (C): $2000 / 10 = $200/unit
-    // Therefore, construction order is always T -> P -> C to maximize profit.
+    // Store array of solutions to handle cases with multiple optimal mixes (e.g., Time 49)
+    let solutions = []; 
 
     // 1. Iterate through possible counts of Commercial Parks (C)
-    // We only go up to the max number that fits in 'n'
     for (let c = 0; c * buildings.C.time <= n; c++) {
         let remainingTimeAfterC = n - (c * buildings.C.time);
 
@@ -34,53 +26,56 @@ function solveMaxProfit(n) {
             // 3. Iterate through possible counts of Pubs (P)
             for (let p = 0; p * buildings.P.time <= remainingTimeAfterT; p++) {
                 
-                // We now have a valid mix (c, t, p).
-                // Calculate Profit for this specific combination.
+                // Calculate Profit for this combination (c, t, p)
                 let currentProfit = 0;
                 let currentTime = 0;
 
-                // Build Theatres First (Highest Efficiency)
+                // Construction Order: T -> P -> C (Based on Efficiency: $300/u -> $250/u -> $200/u)
+                
+                // Build Theatres
                 for (let i = 0; i < t; i++) {
                     currentTime += buildings.T.time;
                     currentProfit += (n - currentTime) * buildings.T.rate;
                 }
 
-                // Build Pubs Second
+                // Build Pubs
                 for (let i = 0; i < p; i++) {
                     currentTime += buildings.P.time;
                     currentProfit += (n - currentTime) * buildings.P.rate;
                 }
 
-                // Build Commercial Parks Last (Lowest Efficiency)
+                // Build Commercial Parks
                 for (let i = 0; i < c; i++) {
                     currentTime += buildings.C.time;
                     currentProfit += (n - currentTime) * buildings.C.rate;
                 }
 
-                // Check if this is the new maximum
+                // Check maximum
                 if (currentProfit > maxProfit) {
                     maxProfit = currentProfit;
-                    bestSolution = { T: t, P: p, C: c };
+                    // Found a new higher max, reset solutions array
+                    solutions = [{ T: t, P: p, C: c }];
+                } else if (currentProfit === maxProfit) {
+                    // Found another combination with the same max profit
+                    solutions.push({ T: t, P: p, C: c });
                 }
             }
         }
     }
 
-    // Return the result object
+  
+    const formattedSolutions = solutions.map(s => `T: ${s.T} P: ${s.P} C: ${s.C}`);
+
     return {
         timeUnit: n,
         earnings: maxProfit,
-        solution: `T: ${bestSolution.T} P: ${bestSolution.P} C: ${bestSolution.C}`
+        solutions: formattedSolutions
     };
 }
 
-// --- Execution ---
-// You can run these lines to verify the output matches the requirements
-console.log("Test Case 1 (n=7):");
-console.log(solveMaxProfit(7));
-
-console.log("\nTest Case 2 (n=8):");
-console.log(solveMaxProfit(8));
-
-console.log("\nTest Case 3 (n=13):");
-console.log(solveMaxProfit(13));
+// Verification for Test Case 49
+const result49 = solveMaxProfit(49);
+console.log(`Time Unit: ${result49.timeUnit}`);
+console.log(`Earnings: $${result49.earnings}`);
+console.log("Solutions:");
+result49.solutions.forEach(sol => console.log(sol));

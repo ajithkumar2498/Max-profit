@@ -12,7 +12,7 @@ function solveMaxProfit(n) {
     };
 
     let maxProfit = 0;
-    // Store array of solutions to handle cases with multiple optimal mixes (e.g., Time 49)
+    // Store array of solutions to handle cases with multiple optimal mixes 
     let solutions = []; 
 
     // 1. Iterate through possible counts of Commercial Parks (C)
